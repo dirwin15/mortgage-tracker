@@ -1,0 +1,16 @@
+{
+  "boe": {
+    "bank_rate": [],
+    "fixed_2yr_75ltv": [],
+    "fixed_5yr_75ltv": []
+  },
+  "lenders": {
+    "Nationwide": [],
+    "Barclays": [],
+    "Santander": [],
+    "Halifax": [],
+    "HSBC": [],
+    "NatWest": [],
+    "Lloyds": []
+  }
+}

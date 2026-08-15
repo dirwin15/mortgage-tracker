@@ -83,7 +83,9 @@ const SAMPLE_BOE_BASE = (() => {
 // scrape). Falls back to the generated sample data above if it's missing/empty, e.g.
 // before the scraper has run for the first time. ----
 function useRatesData() {
-  const [state, setState] = useState({ loading: true, live: false, lenders: SAMPLE_LENDERS, boeBase: SAMPLE_BOE_BASE });
+  const [state, setState] = useState({
+    loading: true, live: false, lenders: SAMPLE_LENDERS, boeBase: SAMPLE_BOE_BASE, trackingStart: null,
+  });
 
   useEffect(() => {
     fetch("./rates.json")
@@ -100,6 +102,7 @@ function useRatesData() {
           live: true,
           lenders: json.lenders,
           boeBase: boeBase.length > 0 ? boeBase : SAMPLE_BOE_BASE,
+          trackingStart: json.meta?.tracking_start || null,
         });
       })
       .catch(() => setState((s) => ({ ...s, loading: false, live: false })));
@@ -124,13 +127,14 @@ function fmtGBP(n) {
 }
 
 export default function RateTracker() {
-  const { loading, live, lenders, boeBase } = useRatesData();
+  const { loading, live, lenders, boeBase, trackingStart } = useRatesData();
   const [houseValue, setHouseValue] = useState(500000);
   const [ltvInput, setLtvInput] = useState(90);
   const [productType, setProductType] = useState("fixed");
   const [fixYears, setFixYears] = useState(2);
   const [loanTerm, setLoanTerm] = useState(30);
   const [hidden, setHidden] = useState({});
+  const [boeHistoryMode, setBoeHistoryMode] = useState("since_start"); // "since_start" | "full"
 
   const lenderNames = useMemo(() => Object.keys(lenders || {}), [lenders]);
   const lenderNameToColor = useMemo(() => {
@@ -150,6 +154,13 @@ export default function RateTracker() {
     r.product_type === productType &&
     (productType !== "fixed" || r.fix_years === fixYears);
 
+  // "since_start" trims the BoE line to when tracking actually began, so it lines up
+  // with the (currently much shorter) lender history. "full" shows everything BoE has.
+  const visibleBoeBase = useMemo(() => {
+    if (boeHistoryMode === "full" || !trackingStart) return boeBase;
+    return boeBase.filter((p) => p.date >= trackingStart);
+  }, [boeBase, boeHistoryMode, trackingStart]);
+
   const chartData = useMemo(() => {
     const dateMap = {};
     Object.entries(lenders).forEach(([lender, history]) => {
@@ -160,13 +171,13 @@ export default function RateTracker() {
         dateMap[day.date][lender] = match.rate_pct;
       });
     });
-    boeBase.forEach(({ date, rate }) => {
+    visibleBoeBase.forEach(({ date, rate }) => {
       dateMap[date] = dateMap[date] || { date };
       dateMap[date]["BoE Base Rate"] = rate;
     });
     return Object.values(dateMap).sort((a, b) => a.date.localeCompare(b.date));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [band, productType, fixYears, lenders, boeBase]);
+  }, [band, productType, fixYears, lenders, visibleBoeBase]);
 
   const latest = useMemo(() => {
     const rows = Object.entries(lenders).map(([lender, history]) => {
@@ -345,7 +356,9 @@ export default function RateTracker() {
           </div>
           <div style={{ background: "#10141F", border: "1px solid #1E2330", borderRadius: 6, padding: "18px 20px" }}>
             <div style={labelStyle}>BOE BASE RATE</div>
-            <div style={{ fontSize: 30, fontWeight: 700, color: "#8B93A5" }}>3.75%</div>
+            <div style={{ fontSize: 30, fontWeight: 700, color: "#8B93A5" }}>
+              {boeBase.length > 0 ? `${boeBase[boeBase.length - 1].rate.toFixed(2)}%` : "—"}
+            </div>
           </div>
         </section>
 
@@ -357,6 +370,17 @@ export default function RateTracker() {
           padding: "20px 16px 8px",
           marginBottom: 24,
         }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 8, padding: "0 8px 12px" }}>
+            <span style={{ fontSize: 11, letterSpacing: "0.08em", color: "#6B7280" }}>BOE HISTORY</span>
+            <div style={pillRow}>
+              <span style={pill(boeHistoryMode === "since_start")} onClick={() => setBoeHistoryMode("since_start")}>
+                Since I started tracking
+              </span>
+              <span style={pill(boeHistoryMode === "full")} onClick={() => setBoeHistoryMode("full")}>
+                Full history (2022+)
+              </span>
+            </div>
+          </div>
           <ResponsiveContainer width="100%" height={360}>
             <LineChart data={chartData} margin={{ top: 8, right: 16, left: -8, bottom: 8 }}>
               <CartesianGrid stroke="#1E2330" strokeDasharray="3 3" />
@@ -372,7 +396,15 @@ export default function RateTracker() {
                 labelStyle={{ color: "#8B93A5" }}
               />
               <Legend onClick={(e) => toggle(e.dataKey)} wrapperStyle={{ fontSize: 12, cursor: "pointer", paddingTop: 12 }} />
-              <Line type="monotone" dataKey="BoE Base Rate" stroke="#4B5563" strokeDasharray="5 4" strokeWidth={1.5} dot={false} hide={!!hidden["BoE Base Rate"]} />
+              <Line
+                type="monotone"
+                dataKey="BoE Base Rate"
+                stroke="#4B5563"
+                strokeDasharray="5 4"
+                strokeWidth={1.5}
+                dot={{ r: 2, fill: "#4B5563", strokeWidth: 0 }}
+                hide={!!hidden["BoE Base Rate"]}
+              />
               {lenderNames.map((lender) => (
                 <Line
                   key={lender}
@@ -380,7 +412,8 @@ export default function RateTracker() {
                   dataKey={lender}
                   stroke={lenderNameToColor[lender] || "#F5F7FA"}
                   strokeWidth={best && lender === best.lender ? 2.5 : 1.5}
-                  dot={false}
+                  dot={{ r: 3, fill: lenderNameToColor[lender] || "#F5F7FA", strokeWidth: 0 }}
+                  activeDot={{ r: 5 }}
                   hide={!!hidden[lender]}
                   connectNulls
                 />

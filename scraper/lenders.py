@@ -34,22 +34,6 @@ _LENDER_RE = re.compile(
 )
 
 
-def _nearest_lender_name(text: str, pos: int, window: int = 40) -> str | None:
-    """Find the closest known lender name appearing shortly before `pos` in the text.
-    Window is kept tight (real card layout is "<Bank> <N year fixed>...") so an unknown
-    bank's card can't accidentally inherit a known lender's name from an earlier card."""
-    start = max(0, pos - window)
-    snippet = text[start:pos]
-    matches = list(_LENDER_RE.finditer(snippet))
-    if not matches:
-        return None
-    found = matches[-1].group(1)
-    for name in KNOWN_LENDERS:
-        if name.lower() == found.lower():
-            return name
-    return found
-
-
 def _closest_ltv_hint(text: str, pos: int, window: int = 150) -> int:
     """Find the LTV% mention closest (by distance) to `pos`, not just the first one in
     a wide window - a wide window can pick up a neighbouring card's LTV by mistake."""
@@ -65,48 +49,75 @@ def _closest_ltv_hint(text: str, pos: int, window: int = 150) -> int:
     return int(closest.group("ltv"))
 
 
+_RATE_LINE_RE = re.compile(
+    r"(?P<fix>2|3|5|10)\s*(?:-?\s*year|yr|years)\s*(?:fixed|fix).*?"
+    r"(?P<rate>\d{1,2}(?:\.\d{1,2})?)\s*%(?!\s*(?:LTV|loan.to.value))",
+    re.I,
+)
+
+
 def extract_moneysupermarket_rows(raw_text: str) -> list[RateRow]:
     """Parse the visible deal cards from MoneySuperMarket's rate page.
 
-    The site exposes a repeated pattern like:
-      Halifax 2 year fixed ... Initial rate 4.46%
-    This converts those sections into the same RateRow matrix used by the rest of the app,
-    attributing each row back to the actual lender named just before it - rows where no
-    known lender name can be found nearby are dropped rather than mislabelled.
+    Real cards look like:
+      Halifax  Rated 4.8 stars  Representative example  Monthly cost from £2,450
+      2 year fixed at 90% LTV  Initial rate 4.46%  No product fee  Get this rate
+
+    i.e. there's often a good amount of filler (ratings, "representative example",
+    monthly cost) between the bank name and the actual rate line - a fixed-size
+    lookback window either misses real matches (too tight) or bleeds into the
+    previous card (too loose). Instead, segment the whole page by lender-name
+    boundaries: find every occurrence of a known lender name, and treat the text
+    between one occurrence and the next as that lender's card. Every rate line
+    inside a card is attributed to that card's lender - simple, and correct
+    regardless of how much filler text a real card contains.
     """
     text = re.sub(r"\s+", " ", raw_text or "")
     rows: list[RateRow] = []
     seen: set[tuple[str, int | None, str, int | None]] = set()
+
+    lender_positions = sorted(
+        (m.start(), m.group(1)) for m in _LENDER_RE.finditer(text)
+    )
+    if not lender_positions:
+        return rows
+
+    # Real cards end with a call-to-action like "Get this rate" - use the first such
+    # marker after a lender's name as an extra card boundary, in addition to the next
+    # known lender's name. This stops an unrecognised bank's card (e.g. a smaller
+    # building society we don't track) from bleeding into the previous known lender's
+    # card when it's the last known lender on the page.
+    card_end_markers = list(re.finditer(
+        r"\b(?:get this rate|see this deal|view deal|apply now|see details|more details)\b",
+        text, re.I,
+    ))
+
     unattributed = 0
+    for i, (start_pos, raw_name) in enumerate(lender_positions):
+        lender = next((n for n in KNOWN_LENDERS if n.lower() == raw_name.lower()), raw_name)
+        next_lender_pos = lender_positions[i + 1][0] if i + 1 < len(lender_positions) else len(text)
+        next_marker = next((m.end() for m in card_end_markers if m.start() > start_pos), len(text))
+        end_pos = min(next_lender_pos, next_marker)
+        card_text = text[start_pos:end_pos]
 
-    for match in re.finditer(
-        r"(?P<fix>2|3|5|10)\s*(?:-?\s*year|yr|years)\s*(?:fixed|fix).*?(?P<rate>\d{1,2}(?:\.\d{1,2})?)\s*%(?!\s*(?:LTV|loan.to.value))",
-        text,
-        flags=re.I,
-    ):
-        fix_years = int(match.group("fix"))
-        rate = float(match.group("rate"))
-        if not 1.0 <= rate <= 15.0:
-            continue
+        for match in _RATE_LINE_RE.finditer(card_text):
+            fix_years = int(match.group("fix"))
+            rate = float(match.group("rate"))
+            if not 1.0 <= rate <= 15.0:
+                continue
 
-        lender = _nearest_lender_name(text, match.start())
-        if lender is None:
-            unattributed += 1
-            continue  # skip rather than mislabel as the wrong bank
-
-        ltv_hint = _closest_ltv_hint(text, match.start())
-
-        key = (lender, ltv_hint, "fixed", fix_years)
-        if key in seen:
-            continue
-        seen.add(key)
-        rows.append(RateRow(
-            lender=lender,
-            ltv_band=_nearest_ltv_band(ltv_hint),
-            product_type="fixed",
-            fix_years=fix_years,
-            rate_pct=rate,
-        ))
+            ltv_hint = _closest_ltv_hint(card_text, match.start())
+            key = (lender, ltv_hint, "fixed", fix_years)
+            if key in seen:
+                continue
+            seen.add(key)
+            rows.append(RateRow(
+                lender=lender,
+                ltv_band=_nearest_ltv_band(ltv_hint),
+                product_type="fixed",
+                fix_years=fix_years,
+                rate_pct=rate,
+            ))
 
     if unattributed:
         print(f"[MoneySuperMarket] skipped {unattributed} rate(s) with no recognisable lender name nearby")
@@ -161,6 +172,19 @@ def scrape_moneysupermarket() -> dict[str, LenderScrapeResult]:
                     pass
 
             page.wait_for_timeout(3_000)
+
+            # Many deal cards are lazy-loaded as you scroll (infinite-scroll pattern) -
+            # a single page load without scrolling was only surfacing 1-2 of the 7 banks
+            # we care about. Scroll down in steps to trigger loading of more cards.
+            previous_height = 0
+            for _ in range(8):
+                page.mouse.wheel(0, 1800)
+                page.wait_for_timeout(1200)
+                current_height = page.evaluate("document.body.scrollHeight")
+                if current_height == previous_height:
+                    break
+                previous_height = current_height
+
             body_text = page.locator("body").inner_text()
             rows = extract_moneysupermarket_rows(body_text)
             browser.close()

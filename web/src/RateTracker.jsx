@@ -4,7 +4,18 @@ import {
 } from "recharts";
 
 // ---- Config ----
-const LTV_BANDS = [60, 75, 80, 85, 90, 95];
+// Property value, LTV, and product type are fixed to match exactly what the
+// scraper captures (see scraper/msm_automation/msm_lenders.py) - MSM returns
+// rates computed for a specific loan, not a generic curve, so letting these
+// be "adjustable" here would just relabel the same underlying 500k/90%/Fixed
+// data rather than actually change what's shown. Fix length and repayment
+// term stay adjustable since the scraper covers both fix lengths and the
+// repayment term only drives client-side payment math, not which rate row
+// is picked.
+const HOUSE_VALUE = 500_000;
+const LTV_BAND = 90;
+const DEPOSIT = Math.round(HOUSE_VALUE * (1 - LTV_BAND / 100));
+const LOAN_AMOUNT = HOUSE_VALUE - DEPOSIT;
 const FIX_LENGTHS = [2, 3]; // scraper only captures 2/3yr fixed (see scraper/msm_automation)
 const LOAN_TERMS = [25, 30];
 const LENDER_PALETTE = [
@@ -26,46 +37,45 @@ function lenderColor(lender, index) {
   return LENDER_PALETTE[index % LENDER_PALETTE.length];
 }
 
-// ---- Sample data generator: shape-matches data/rates.json's lender matrix.
+// ---- Sample data generator: shape-matches data/rates.json's lender matrix
+// (90% LTV / Fixed 2yr+3yr only, matching what the real scraper produces).
 // Swap this for a real fetch of data/rates.json once the scraper is live. ----
-function genMatrixHistory(baseByBand, days, seed) {
+function genMatrixHistory(baseRate, days, seed) {
   const today = new Date();
   const history = [];
   for (let i = days - 1; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
     const date = d.toISOString().slice(0, 10);
-    const rates = [];
-    LTV_BANDS.forEach((band, bIdx) => {
-      FIX_LENGTHS.forEach((fix, fIdx) => {
-        const base = baseByBand[band] + fix * 0.06; // longer fixes ~slightly costlier here
-        const wiggle = Math.sin((i + seed + bIdx * 3 + fIdx) / 6) * 0.02;
-        const drift = -0.003 * (days - i);
-        const rate = Math.round((base + wiggle + drift) * 100) / 100;
-        rates.push({ ltv_band: band, product_type: "fixed", fix_years: fix, rate_pct: rate });
-      });
-      // one tracker row per band
-      const trackerBase = baseByBand[band] + 0.25;
-      rates.push({
-        ltv_band: band, product_type: "tracker", fix_years: null,
-        rate_pct: Math.round((trackerBase + Math.sin((i + seed) / 6) * 0.02) * 100) / 100,
-      });
+    const rates = FIX_LENGTHS.map((fix, fIdx) => {
+      const base = baseRate + fix * 0.06; // longer fixes ~slightly costlier here
+      const wiggle = Math.sin((i + seed + fIdx) / 6) * 0.02;
+      const drift = -0.003 * (days - i);
+      const rate = Math.round((base + wiggle + drift) * 100) / 100;
+      return {
+        ltv_band: LTV_BAND,
+        product_type: "fixed",
+        fix_years: fix,
+        fix_months: fix * 12,
+        rate_pct: rate,
+        product_fee: 999,
+        total_fees: 999,
+        follow_on_rate_pct: Math.round((rate + 1.6) * 100) / 100,
+      };
     });
     history.push({ date, status: "ok", rates });
   }
   return history;
 }
 
-const BASE_BY_BAND = { 60: 4.05, 75: 4.25, 80: 4.45, 85: 4.60, 90: 4.85, 95: 5.15 };
-
 const SAMPLE_LENDERS = {
-  Nationwide: genMatrixHistory(BASE_BY_BAND, 60, 1),
-  Barclays: genMatrixHistory(BASE_BY_BAND, 60, 2),
-  Santander: genMatrixHistory(BASE_BY_BAND, 60, 3),
-  Halifax: genMatrixHistory(BASE_BY_BAND, 60, 4),
-  HSBC: genMatrixHistory(BASE_BY_BAND, 60, 5),
-  NatWest: genMatrixHistory(BASE_BY_BAND, 60, 6),
-  Lloyds: genMatrixHistory(BASE_BY_BAND, 60, 7),
+  Nationwide: genMatrixHistory(4.85, 60, 1),
+  Barclays: genMatrixHistory(4.90, 60, 2),
+  Santander: genMatrixHistory(4.95, 60, 3),
+  Halifax: genMatrixHistory(4.92, 60, 4),
+  HSBC: genMatrixHistory(4.88, 60, 5),
+  NatWest: genMatrixHistory(4.87, 60, 6),
+  Lloyds: genMatrixHistory(4.93, 60, 7),
 };
 
 const SAMPLE_BOE_BASE = (() => {
@@ -111,15 +121,51 @@ function useRatesData() {
   return state;
 }
 
-function nearestBand(ltv) {
-  return LTV_BANDS.reduce((best, b) => (Math.abs(b - ltv) < Math.abs(best - ltv) ? b : best));
-}
-
 function monthlyPayment(loanAmount, annualRatePct, termYears) {
   const r = annualRatePct / 100 / 12;
   const n = termYears * 12;
   if (r === 0) return loanAmount / n;
   return (loanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+}
+
+// Balance remaining after monthsElapsed of paying monthlyPayment(...) at this rate,
+// as if that rate applied for the full termYears (matches how a lender actually
+// computes what you pay during a fix - not recalculated until the fix ends).
+function remainingBalance(loanAmount, annualRatePct, termYears, monthsElapsed) {
+  const r = annualRatePct / 100 / 12;
+  const pmt = monthlyPayment(loanAmount, annualRatePct, termYears);
+  if (r === 0) return loanAmount - pmt * monthsElapsed;
+  return loanAmount * Math.pow(1 + r, monthsElapsed) - pmt * ((Math.pow(1 + r, monthsElapsed) - 1) / r);
+}
+
+// Full-term cost assuming the fixed rate for fixMonths, then reverting to
+// followOnRatePct (lender's SVR/reversion rate) for the rest of loanTermYears.
+// fixMonths must be the ACTUAL fix duration (MSM's interestRates[0].months),
+// not fixYears*12 - a "2yr fixed" product's fix commonly runs to a specific
+// calendar end date (e.g. fixed until 31/10/2028) that isn't exactly 24
+// months out, and using the rounded fixYears*12 instead produced total-cost
+// figures consistently off by GBP 1,500-4,000 against MSM's own numbers
+// (verified against 20 live products - see msm_lenders.py). This generalises
+// correctly to whatever loan term the user selects, since only the follow-on
+// stage's length depends on that; the fix length itself doesn't.
+// Falls back to a single-stage calc if no follow-on rate/fix-months were captured.
+function twoStageTotals(loanAmount, fixRatePct, fixMonths, followOnRatePct, loanTermYears, totalFees) {
+  const totalMonths = loanTermYears * 12;
+  const fees = totalFees || 0;
+
+  if (!followOnRatePct || !fixMonths || fixMonths >= totalMonths) {
+    const pmt = Math.round(monthlyPayment(loanAmount, fixRatePct, loanTermYears) * 100) / 100;
+    const totalRepaid = pmt * totalMonths;
+    return { totalInterest: totalRepaid - loanAmount, totalPayable: totalRepaid + fees };
+  }
+
+  const stage1Pmt = Math.round(monthlyPayment(loanAmount, fixRatePct, loanTermYears) * 100) / 100;
+  const balanceAfterFix = remainingBalance(loanAmount, fixRatePct, loanTermYears, fixMonths);
+  const remainingMonths = totalMonths - fixMonths;
+  const stage2Pmt = Math.round(monthlyPayment(balanceAfterFix, followOnRatePct, remainingMonths / 12) * 100) / 100;
+
+  const totalRepaid = stage1Pmt * fixMonths + stage2Pmt * remainingMonths;
+  return { totalInterest: totalRepaid - loanAmount, totalPayable: totalRepaid + fees };
 }
 
 function fmtGBP(n) {
@@ -128,9 +174,6 @@ function fmtGBP(n) {
 
 export default function RateTracker() {
   const { loading, live, lenders, boeBase, trackingStart } = useRatesData();
-  const [houseValue, setHouseValue] = useState(500000);
-  const [ltvInput, setLtvInput] = useState(90);
-  const [productType, setProductType] = useState("fixed");
   const [fixYears, setFixYears] = useState(2);
   const [loanTerm, setLoanTerm] = useState(30);
   const [hidden, setHidden] = useState({});
@@ -145,14 +188,10 @@ export default function RateTracker() {
     return map;
   }, [lenderNames]);
 
-  const band = nearestBand(ltvInput);
-  const deposit = Math.round(houseValue * (1 - ltvInput / 100));
-  const loanAmount = houseValue - deposit;
-
   const filterRow = (r) =>
-    r.ltv_band === band &&
-    r.product_type === productType &&
-    (productType !== "fixed" || r.fix_years === fixYears);
+    r.ltv_band === LTV_BAND &&
+    r.product_type === "fixed" &&
+    r.fix_years === fixYears;
 
   // "since_start" trims the BoE line to when tracking actually began, so it lines up
   // with the (currently much shorter) lender history. "full" shows everything BoE has.
@@ -177,7 +216,7 @@ export default function RateTracker() {
     });
     return Object.values(dateMap).sort((a, b) => a.date.localeCompare(b.date));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [band, productType, fixYears, lenders, visibleBoeBase]);
+  }, [fixYears, lenders, visibleBoeBase]);
 
   const latest = useMemo(() => {
     const rows = Object.entries(lenders).map(([lender, history]) => {
@@ -188,42 +227,32 @@ export default function RateTracker() {
       const prevMatch = prevDay?.rates?.find(filterRow);
       if (!lastMatch) return null;
       const delta = prevMatch ? Math.round((lastMatch.rate_pct - prevMatch.rate_pct) * 100) / 100 : 0;
-      // Total payable/interest depend on loan amount and repayment term - both are
-      // live user inputs, not scrape-time constants, so compute them here rather
-      // than trust a precomputed figure that'd be frozen to whatever the scraper's
-      // fixed scenario used. Rate and fee are genuine product facts and come
-      // straight from the scrape; these two are just arithmetic on top of them.
-      const productFee = lastMatch.product_fee || 0;
-      const monthlyPmt = monthlyPayment(loanAmount, lastMatch.rate_pct, loanTerm);
-      const totalRepaid = monthlyPmt * loanTerm * 12;
+      // Total payable/interest depend on the repayment term (a live user input,
+      // not a scrape-time constant) and on reverting to the lender's follow-on
+      // rate once the fix ends - see twoStageTotals for why a naive "fixed rate
+      // for the whole term" calc doesn't match MSM's own figures.
+      const fixMonths = lastMatch.fix_months ?? fixYears * 12; // fall back to a clean estimate if missing
+      const { totalInterest, totalPayable } = twoStageTotals(
+        LOAN_AMOUNT, lastMatch.rate_pct, fixMonths, lastMatch.follow_on_rate_pct, loanTerm, lastMatch.total_fees
+      );
       return {
         lender,
         rate: lastMatch.rate_pct,
         delta,
         productFee: lastMatch.product_fee,
-        totalAmountPayable: totalRepaid + productFee,
-        totalInterest: totalRepaid - loanAmount,
+        totalAmountPayable: totalPayable,
+        totalInterest,
       };
     }).filter(Boolean);
     return rows.sort((a, b) => a.rate - b.rate);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [band, productType, fixYears, lenders, loanAmount, loanTerm]);
+  }, [fixYears, lenders, loanTerm]);
 
   const best = latest[0];
-  const payment = best ? monthlyPayment(loanAmount, best.rate, loanTerm) : null;
+  const payment = best ? monthlyPayment(LOAN_AMOUNT, best.rate, loanTerm) : null;
 
   const toggle = (lender) => setHidden(h => ({ ...h, [lender]: !h[lender] }));
 
-  const inputStyle = {
-    background: "#151A26",
-    border: "1px solid #2A3040",
-    borderRadius: 4,
-    color: "#F5F7FA",
-    padding: "8px 10px",
-    fontSize: 13,
-    fontFamily: "inherit",
-    width: "100%",
-  };
   const labelStyle = { fontSize: 11, letterSpacing: "0.08em", color: "#6B7280", marginBottom: 6, display: "block" };
   const pillRow = { display: "flex", gap: 6, flexWrap: "wrap" };
   const pill = (active) => ({
@@ -251,7 +280,7 @@ export default function RateTracker() {
             UK MORTGAGE RATE TRACKER
           </div>
           <h1 style={{ fontSize: 26, fontWeight: 600, margin: 0, color: "#F5F7FA", letterSpacing: "-0.01em" }}>
-            {fmtGBP(houseValue)} property · {ltvInput}% LTV · {fixYears}yr {productType}
+            {fmtGBP(HOUSE_VALUE)} property · {LTV_BAND}% LTV · {fixYears}yr fixed
           </h1>
           <div style={{ fontSize: 13, marginTop: 4, display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{
@@ -279,54 +308,32 @@ export default function RateTracker() {
           padding: 20,
         }}>
           <div>
-            <label style={labelStyle}>HOUSE VALUE (£)</label>
-            <input
-              type="number"
-              style={inputStyle}
-              value={houseValue}
-              min={50000}
-              step={5000}
-              onChange={(e) => setHouseValue(Number(e.target.value) || 0)}
-            />
-          </div>
-          <div>
-            <label style={labelStyle}>LTV RATIO (%) — snaps to nearest priced band ({band}%)</label>
-            <input
-              type="number"
-              style={inputStyle}
-              value={ltvInput}
-              min={5}
-              max={95}
-              step={1}
-              onChange={(e) => setLtvInput(Number(e.target.value) || 0)}
-            />
-          </div>
-
-          <div>
-            <label style={labelStyle}>PRODUCT TYPE</label>
-            <div style={pillRow}>
-              {["fixed", "tracker", "variable"].map((p) => (
-                <span key={p} style={pill(productType === p)} onClick={() => setProductType(p)}>
-                  {p}
-                </span>
-              ))}
+            <label style={labelStyle}>SCENARIO</label>
+            <div style={{ fontSize: 13, color: "#C9CEDA", paddingTop: 8, lineHeight: 1.6 }}>
+              {fmtGBP(HOUSE_VALUE)} property · {fmtGBP(DEPOSIT)} deposit ({LTV_BAND}% LTV) · First Time Buyer
+              <br />
+              <span style={{ color: "#6B7280", fontSize: 12 }}>
+                Fixed scenario, not adjustable — matches what the scraper captures (see scraper/msm_automation)
+              </span>
             </div>
           </div>
           <div>
-            <label style={labelStyle}>FIX LENGTH {productType !== "fixed" && "(n/a for this product)"}</label>
+            <label style={labelStyle}>LOAN AMOUNT</label>
+            <div style={{ fontSize: 13, color: "#C9CEDA", paddingTop: 8 }}>
+              {fmtGBP(LOAN_AMOUNT)}
+            </div>
+          </div>
+
+          <div>
+            <label style={labelStyle}>FIX LENGTH</label>
             <div style={pillRow}>
               {FIX_LENGTHS.map((y) => (
-                <span
-                  key={y}
-                  style={{ ...pill(fixYears === y && productType === "fixed"), opacity: productType === "fixed" ? 1 : 0.35 }}
-                  onClick={() => productType === "fixed" && setFixYears(y)}
-                >
+                <span key={y} style={pill(fixYears === y)} onClick={() => setFixYears(y)}>
                   {y}yr
                 </span>
               ))}
             </div>
           </div>
-
           <div>
             <label style={labelStyle}>REPAYMENT TERM (years) — affects monthly payment only, not the rate</label>
             <div style={pillRow}>
@@ -335,12 +342,6 @@ export default function RateTracker() {
                   {t}yr
                 </span>
               ))}
-            </div>
-          </div>
-          <div>
-            <label style={labelStyle}>DEPOSIT / LOAN AMOUNT</label>
-            <div style={{ fontSize: 13, color: "#C9CEDA", paddingTop: 8 }}>
-              {fmtGBP(deposit)} deposit · {fmtGBP(loanAmount)} loan
             </div>
           </div>
         </section>

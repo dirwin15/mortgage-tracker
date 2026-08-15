@@ -90,6 +90,12 @@ def _products_to_rows(products: list[dict]) -> dict[str, list[RateRow]]:
         seen.add(dedupe_key)
 
         costs = product.get("costs") or {}
+        # interestRates[1], if present, is the lender's follow-on/SVR rate after the
+        # fix ends - needed to compute accurate whole-term totals (see common.py).
+        follow_on_rate = interest_rates[1].get("rate") if len(interest_rates) >= 2 else None
+        # ACTUAL fix duration, not fix_years*12 - see common.py's RateRow.fix_months.
+        fix_months = interest_rates[0].get("months")
+
         rows_by_lender.setdefault(matched, []).append(RateRow(
             lender=matched,
             ltv_band=LTV_BAND,
@@ -97,6 +103,9 @@ def _products_to_rows(products: list[dict]) -> dict[str, list[RateRow]]:
             fix_years=fix_years,
             rate_pct=float(rate),
             product_fee=costs.get("productFees"),
+            total_fees=costs.get("totalFees"),
+            follow_on_rate_pct=follow_on_rate,
+            fix_months=fix_months,
         ))
     return rows_by_lender
 

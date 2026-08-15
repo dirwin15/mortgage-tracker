@@ -14,16 +14,16 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
+      # actions/setup-python's installer invocation breaks on this self-hosted
+      # runner (it's built for GitHub's pre-configured hosted images), and
+      # plain "python" on PATH resolves to a Windows Store stub, not a real
+      # interpreter. Use the already-installed Python via the "py" launcher
+      # instead of fighting either of those.
       - name: Install patchright
         run: |
-          python -m pip install --upgrade pip
-          pip install patchright
-          python -m patchright install chromium
+          py -m pip install --upgrade pip
+          py -m pip install patchright
+          py -m patchright install chromium
 
       - name: Run MSM access validation
-        run: python scraper/msm_automation/validate_msm_access.py
+        run: py scraper/msm_automation/validate_msm_access.py

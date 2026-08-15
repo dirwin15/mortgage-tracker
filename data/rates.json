@@ -5117,49 +5117,47 @@
       {
         "date": "2026-08-16",
         "status": "ok",
-        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3/5yr).",
+        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3yr).",
         "rates": [
           {
             "lender": "Nationwide",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 4.83
-          },
-          {
-            "lender": "Nationwide",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 4.84
-          },
-          {
-            "lender": "Nationwide",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 4.99
+            "rate_pct": 4.83,
+            "product_fee": 1499,
+            "total_amount_payable": 1005206.84,
+            "total_interest": 553707.84
           },
           {
             "lender": "Nationwide",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 5.17
+            "rate_pct": 5.17,
+            "product_fee": 0,
+            "total_amount_payable": 1007712.72,
+            "total_interest": 557712.72
           },
           {
             "lender": "Nationwide",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 3,
-            "rate_pct": 5.18
+            "rate_pct": 5.18,
+            "product_fee": 999,
+            "total_amount_payable": 1001503.8,
+            "total_interest": 550504.8
           },
           {
             "lender": "Nationwide",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 3,
-            "rate_pct": 5.39
+            "rate_pct": 5.39,
+            "product_fee": 0,
+            "total_amount_payable": 1004145.12,
+            "total_interest": 554145.12
           }
         ]
       }
@@ -5182,77 +5180,67 @@
       {
         "date": "2026-08-16",
         "status": "ok",
-        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3/5yr).",
+        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3yr).",
         "rates": [
           {
             "lender": "Barclays",
             "ltv_band": 90,
             "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 4.75
-          },
-          {
-            "lender": "Barclays",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 4.85
+            "fix_years": 2,
+            "rate_pct": 4.96,
+            "product_fee": 899,
+            "total_amount_payable": 936202.0,
+            "total_interest": 485188.0
           },
           {
             "lender": "Barclays",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 4.96
-          },
-          {
-            "lender": "Barclays",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 2,
-            "rate_pct": 5.01
+            "rate_pct": 5.01,
+            "product_fee": 0,
+            "total_amount_payable": 935897.75,
+            "total_interest": 485782.75
           },
           {
             "lender": "Barclays",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 3,
-            "rate_pct": 5.04
-          },
-          {
-            "lender": "Barclays",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 5.05
+            "rate_pct": 5.04,
+            "product_fee": 899,
+            "total_amount_payable": 933321.93,
+            "total_interest": 482307.93
           },
           {
             "lender": "Barclays",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 5.11
+            "rate_pct": 5.11,
+            "product_fee": 0,
+            "total_amount_payable": 937079.95,
+            "total_interest": 486964.95
           },
           {
             "lender": "Barclays",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 3,
-            "rate_pct": 5.14
-          },
-          {
-            "lender": "Barclays",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 5.3
+            "rate_pct": 5.14,
+            "product_fee": 899,
+            "total_amount_payable": 935055.21,
+            "total_interest": 484041.21
           },
           {
             "lender": "Barclays",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 5.35
+            "rate_pct": 5.35,
+            "product_fee": 0,
+            "total_amount_payable": 939912.9,
+            "total_interest": 489797.9
           }
         ]
       }
@@ -5267,70 +5255,67 @@
       {
         "date": "2026-08-16",
         "status": "ok",
-        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3/5yr).",
+        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3yr).",
         "rates": [
           {
             "lender": "Santander",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 4.89
-          },
-          {
-            "lender": "Santander",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 4.9
-          },
-          {
-            "lender": "Santander",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 5.02
+            "rate_pct": 4.89,
+            "product_fee": 999,
+            "total_amount_payable": 1005067.92,
+            "total_interest": 553843.92
           },
           {
             "lender": "Santander",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 3,
-            "rate_pct": 5.1
+            "rate_pct": 5.1,
+            "product_fee": 999,
+            "total_amount_payable": 999934.76,
+            "total_interest": 548710.76
           },
           {
             "lender": "Santander",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 5.14
+            "rate_pct": 5.14,
+            "product_fee": 0,
+            "total_amount_payable": 1007254.1,
+            "total_interest": 557029.1
           },
           {
             "lender": "Santander",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 3,
-            "rate_pct": 5.3
-          },
-          {
-            "lender": "Santander",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 5.4
+            "rate_pct": 5.3,
+            "product_fee": 0,
+            "total_amount_payable": 1002597.38,
+            "total_interest": 552372.38
           },
           {
             "lender": "Santander",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 3,
-            "rate_pct": 5.45
+            "rate_pct": 5.45,
+            "product_fee": 0,
+            "total_amount_payable": 1005333.08,
+            "total_interest": 555108.08
           },
           {
             "lender": "Santander",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 5.49
+            "rate_pct": 5.49,
+            "product_fee": 0,
+            "total_amount_payable": 1011672.72,
+            "total_interest": 561447.72
           }
         ]
       }
@@ -5360,77 +5345,67 @@
       {
         "date": "2026-08-16",
         "status": "ok",
-        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3/5yr).",
+        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3yr).",
         "rates": [
           {
             "lender": "Halifax",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 4.99
-          },
-          {
-            "lender": "Halifax",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 5.0
-          },
-          {
-            "lender": "Halifax",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 5.07
+            "rate_pct": 4.99,
+            "product_fee": 999,
+            "total_amount_payable": 1075481.74,
+            "total_interest": 624382.74
           },
           {
             "lender": "Halifax",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 3,
-            "rate_pct": 5.12
+            "rate_pct": 5.12,
+            "product_fee": 999,
+            "total_amount_payable": 1065232.93,
+            "total_interest": 614133.93
           },
           {
             "lender": "Halifax",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 5.16
+            "rate_pct": 5.16,
+            "product_fee": 0,
+            "total_amount_payable": 1076795.74,
+            "total_interest": 626695.74
           },
           {
             "lender": "Halifax",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 5.19
-          },
-          {
-            "lender": "Halifax",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 5.2
+            "rate_pct": 5.19,
+            "product_fee": 999,
+            "total_amount_payable": 1078202.8,
+            "total_interest": 627103.8
           },
           {
             "lender": "Halifax",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 3,
-            "rate_pct": 5.23
-          },
-          {
-            "lender": "Halifax",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 5.27
+            "rate_pct": 5.23,
+            "product_fee": 0,
+            "total_amount_payable": 1066362.31,
+            "total_interest": 616262.31
           },
           {
             "lender": "Halifax",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 5.36
+            "rate_pct": 5.36,
+            "product_fee": 0,
+            "total_amount_payable": 1079503.66,
+            "total_interest": 629403.66
           }
         ]
       }
@@ -5445,49 +5420,37 @@
       {
         "date": "2026-08-16",
         "status": "ok",
-        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3/5yr).",
+        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3yr).",
         "rates": [
           {
             "lender": "HSBC",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 4.86
-          },
-          {
-            "lender": "HSBC",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 4.86
-          },
-          {
-            "lender": "HSBC",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 4.98
+            "rate_pct": 4.86,
+            "product_fee": 999,
+            "total_amount_payable": 980301.46,
+            "total_interest": 529285.46
           },
           {
             "lender": "HSBC",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 5.09
-          },
-          {
-            "lender": "HSBC",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 5.33
+            "rate_pct": 5.09,
+            "product_fee": 0,
+            "total_amount_payable": 982204.06,
+            "total_interest": 532187.06
           },
           {
             "lender": "HSBC",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 5.41
+            "rate_pct": 5.41,
+            "product_fee": 0,
+            "total_amount_payable": 986206.36,
+            "total_interest": 536189.36
           }
         ]
       }
@@ -5502,49 +5465,37 @@
       {
         "date": "2026-08-16",
         "status": "ok",
-        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3/5yr).",
+        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3yr).",
         "rates": [
           {
             "lender": "NatWest",
             "ltv_band": 90,
             "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 4.82
+            "fix_years": 2,
+            "rate_pct": 4.86,
+            "product_fee": 995,
+            "total_amount_payable": 1026154.61,
+            "total_interest": 575129.61
           },
           {
             "lender": "NatWest",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 4.86
-          },
-          {
-            "lender": "NatWest",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 4.93
-          },
-          {
-            "lender": "NatWest",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 2,
-            "rate_pct": 5.07
-          },
-          {
-            "lender": "NatWest",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 5.3
+            "rate_pct": 5.07,
+            "product_fee": 0,
+            "total_amount_payable": 1027968.24,
+            "total_interest": 577938.24
           },
           {
             "lender": "NatWest",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 5.38
+            "rate_pct": 5.38,
+            "product_fee": 0,
+            "total_amount_payable": 1032079.35,
+            "total_interest": 582049.35
           }
         ]
       }
@@ -5559,147 +5510,127 @@
       {
         "date": "2026-08-16",
         "status": "ok",
-        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3/5yr).",
+        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3yr).",
         "rates": [
           {
             "lender": "Lloyds",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 4.94
-          },
-          {
-            "lender": "Lloyds",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 4.95
+            "rate_pct": 4.94,
+            "product_fee": 999,
+            "total_amount_payable": 1074798.01,
+            "total_interest": 623699.01
           },
           {
             "lender": "Lloyds",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 4.99
-          },
-          {
-            "lender": "Lloyds",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 5.0
-          },
-          {
-            "lender": "Lloyds",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 5.02
+            "rate_pct": 4.99,
+            "product_fee": 999,
+            "total_amount_payable": 1075481.74,
+            "total_interest": 624382.74
           },
           {
             "lender": "Lloyds",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 3,
-            "rate_pct": 5.07
-          },
-          {
-            "lender": "Lloyds",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 5.07
+            "rate_pct": 5.07,
+            "product_fee": 999,
+            "total_amount_payable": 1064260.6,
+            "total_interest": 613161.6
           },
           {
             "lender": "Lloyds",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 5.11
+            "rate_pct": 5.11,
+            "product_fee": 0,
+            "total_amount_payable": 1076118.76,
+            "total_interest": 626018.76
           },
           {
             "lender": "Lloyds",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 3,
-            "rate_pct": 5.12
+            "rate_pct": 5.12,
+            "product_fee": 999,
+            "total_amount_payable": 1065232.93,
+            "total_interest": 614133.93
           },
           {
             "lender": "Lloyds",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 5.14
-          },
-          {
-            "lender": "Lloyds",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 5.15
+            "rate_pct": 5.14,
+            "product_fee": 999,
+            "total_amount_payable": 1077525.28,
+            "total_interest": 626426.28
           },
           {
             "lender": "Lloyds",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 5.16
+            "rate_pct": 5.16,
+            "product_fee": 0,
+            "total_amount_payable": 1076795.74,
+            "total_interest": 626695.74
           },
           {
             "lender": "Lloyds",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 3,
-            "rate_pct": 5.18
+            "rate_pct": 5.18,
+            "product_fee": 0,
+            "total_amount_payable": 1065396.1,
+            "total_interest": 615296.1
           },
           {
             "lender": "Lloyds",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 5.19
-          },
-          {
-            "lender": "Lloyds",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 5.2
-          },
-          {
-            "lender": "Lloyds",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 5.22
+            "rate_pct": 5.19,
+            "product_fee": 999,
+            "total_amount_payable": 1078202.8,
+            "total_interest": 627103.8
           },
           {
             "lender": "Lloyds",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 3,
-            "rate_pct": 5.23
-          },
-          {
-            "lender": "Lloyds",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 5,
-            "rate_pct": 5.27
-          },
-          {
-            "lender": "Lloyds",
-            "ltv_band": 90,
-            "product_type": "fixed",
-            "fix_years": 2,
-            "rate_pct": 5.31
+            "rate_pct": 5.23,
+            "product_fee": 0,
+            "total_amount_payable": 1066362.31,
+            "total_interest": 616262.31
           },
           {
             "lender": "Lloyds",
             "ltv_band": 90,
             "product_type": "fixed",
             "fix_years": 2,
-            "rate_pct": 5.36
+            "rate_pct": 5.31,
+            "product_fee": 0,
+            "total_amount_payable": 1078829.56,
+            "total_interest": 628729.56
+          },
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 5.36,
+            "product_fee": 0,
+            "total_amount_payable": 1079503.66,
+            "total_interest": 629403.66
           }
         ]
       }

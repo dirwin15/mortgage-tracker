@@ -27,6 +27,9 @@ class RateRow:
     product_type: str             # "fixed" | "tracker" | "variable"
     fix_years: int | None         # None for tracker/variable
     rate_pct: float
+    product_fee: float | None = None            # arrangement/product fee, GBP
+    total_amount_payable: float | None = None    # full term: loan + interest + fees, GBP
+    total_interest: float | None = None          # full term interest only, GBP
 
     def to_dict(self):
         return asdict(self)

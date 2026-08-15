@@ -188,7 +188,14 @@ export default function RateTracker() {
       const prevMatch = prevDay?.rates?.find(filterRow);
       if (!lastMatch) return null;
       const delta = prevMatch ? Math.round((lastMatch.rate_pct - prevMatch.rate_pct) * 100) / 100 : 0;
-      return { lender, rate: lastMatch.rate_pct, delta };
+      return {
+        lender,
+        rate: lastMatch.rate_pct,
+        delta,
+        productFee: lastMatch.product_fee,
+        totalAmountPayable: lastMatch.total_amount_payable,
+        totalInterest: lastMatch.total_interest,
+      };
     }).filter(Boolean);
     return rows.sort((a, b) => a.rate - b.rate);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -423,19 +430,22 @@ export default function RateTracker() {
         </section>
 
         {/* Table */}
-        <section style={{ background: "#10141F", border: "1px solid #1E2330", borderRadius: 6, overflow: "hidden" }}>
+        <section style={{ background: "#10141F", border: "1px solid #1E2330", borderRadius: 6, overflow: "auto" }}>
           <div style={{
-            display: "grid", gridTemplateColumns: "1fr 100px 100px",
+            display: "grid", gridTemplateColumns: "1fr 90px 90px 100px 130px 130px", minWidth: 720,
             padding: "10px 20px", fontSize: 11, letterSpacing: "0.1em", color: "#6B7280",
             borderBottom: "1px solid #1E2330",
           }}>
             <span>LENDER</span>
             <span style={{ textAlign: "right" }}>RATE</span>
             <span style={{ textAlign: "right" }}>7D TREND</span>
+            <span style={{ textAlign: "right" }}>FEE</span>
+            <span style={{ textAlign: "right" }}>TOTAL PAYABLE</span>
+            <span style={{ textAlign: "right" }}>TOTAL INTEREST</span>
           </div>
-          {latest.map(({ lender, rate, delta }, i) => (
+          {latest.map(({ lender, rate, delta, productFee, totalAmountPayable, totalInterest }, i) => (
             <div key={lender} style={{
-              display: "grid", gridTemplateColumns: "1fr 100px 100px",
+              display: "grid", gridTemplateColumns: "1fr 90px 90px 100px 130px 130px", minWidth: 720,
               padding: "12px 20px", fontSize: 14,
               borderBottom: i < latest.length - 1 ? "1px solid #161A24" : "none",
               background: i === 0 ? "#131826" : "transparent",
@@ -447,6 +457,15 @@ export default function RateTracker() {
               <span style={{ textAlign: "right", color: "#F5F7FA", fontWeight: 600 }}>{rate.toFixed(2)}%</span>
               <span style={{ textAlign: "right", color: delta <= 0 ? "#4ADE80" : "#F87171" }}>
                 {delta <= 0 ? "▼" : "▲"} {Math.abs(delta).toFixed(2)}
+              </span>
+              <span style={{ textAlign: "right", color: "#C9CEDA" }}>
+                {productFee != null ? fmtGBP(productFee) : "—"}
+              </span>
+              <span style={{ textAlign: "right", color: "#C9CEDA" }}>
+                {totalAmountPayable != null ? fmtGBP(totalAmountPayable) : "—"}
+              </span>
+              <span style={{ textAlign: "right", color: "#C9CEDA" }}>
+                {totalInterest != null ? fmtGBP(totalInterest) : "—"}
               </span>
             </div>
           ))}

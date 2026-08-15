@@ -10,8 +10,14 @@ this module must not be invoked from a GitHub-hosted job.
 
 Scenario is fixed by design (see project discussion, not user-adjustable at
 scrape time): a first-time-buyer purchase of a GBP 500,000 property with a
-GBP 50,000 deposit (90% LTV), fixed-rate products only, 2/3/5 year terms.
-Tracker/variable and other LTV bands are out of scope for this source.
+GBP 50,000 deposit (90% LTV), fixed-rate products only, 2/3 year terms.
+Tracker/variable, 5yr+, and other LTV bands are out of scope for this source.
+
+termTypes values ("TwoYears"/"ThreeYears"/etc.) were read directly off the live
+filter checkboxes' DOM attributes (id="enquiry__termTypes--TwoYears" etc.),
+not guessed - passing them as repeated query params (matching the pattern MSM
+already uses for its own affordabilityOutcomes filter) cuts pages fetched
+server-side, not just rows kept after the fact.
 """
 from __future__ import annotations
 import datetime as dt
@@ -24,7 +30,8 @@ PROPERTY_VALUE = 500_000
 DEPOSIT_AMOUNT = 50_000  # -> 90% LTV
 LTV_BAND = 90
 JOURNEY_TYPE = "FirstTimeBuyer"
-TRACKED_FIX_YEARS = {2, 3, 5}
+TRACKED_FIX_YEARS = {2, 3}
+TERM_TYPES = ["TwoYears", "ThreeYears"]
 PAGE_SIZE = 20
 
 BASE_URL = "https://www.moneysupermarket.com/mortgages/rates-table/first-time-buyer"
@@ -33,10 +40,11 @@ KNOWN_LENDERS = ["Nationwide", "Barclays", "Santander", "Halifax", "HSBC", "NatW
 
 
 def _query_url(page: int) -> str:
+    term_types_qs = "&".join(f"termTypes={t}" for t in TERM_TYPES)
     return (
         f"{BASE_URL}?propertyValue={PROPERTY_VALUE}&depositAmount={DEPOSIT_AMOUNT}"
         f"&requiredTerm=30&repaymentMethod=Repayment&region=England"
-        f"&sortResultsBy=MonthlyCost&productTypes=Fixed&page={page}"
+        f"&sortResultsBy=MonthlyCost&productTypes=Fixed&{term_types_qs}&page={page}"
         f"&journeyType={JOURNEY_TYPE}&userSegment=Browse"
     )
 
@@ -81,19 +89,23 @@ def _products_to_rows(products: list[dict]) -> dict[str, list[RateRow]]:
             continue
         seen.add(dedupe_key)
 
+        costs = product.get("costs") or {}
         rows_by_lender.setdefault(matched, []).append(RateRow(
             lender=matched,
             ltv_band=LTV_BAND,
             product_type="fixed",
             fix_years=fix_years,
             rate_pct=float(rate),
+            product_fee=costs.get("productFees"),
+            total_amount_payable=costs.get("totalCost"),
+            total_interest=costs.get("interest"),
         ))
     return rows_by_lender
 
 
 def scrape_msm_lenders() -> dict[str, LenderScrapeResult]:
     """Fetches every page of MSM's first-time-buyer Fixed results for the fixed
-    500k/90%LTV scenario, filters to 2/3/5yr fixed products from the 7 tracked
+    500k/90%LTV scenario, filters to 2/3yr fixed products from the 7 tracked
     lenders, and returns one LenderScrapeResult per lender (status 'ok' if any
     rows were found, 'not_found' if the fetch worked but that lender had none)."""
     fetched_at = dt.date.today().isoformat()
@@ -150,7 +162,7 @@ def scrape_msm_lenders() -> dict[str, LenderScrapeResult]:
                 source_url=BASE_URL,
                 status="ok",
                 rows=lender_rows,
-                note="Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3/5yr).",
+                note="Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3yr).",
             )
         else:
             results[lender] = LenderScrapeResult(
@@ -159,6 +171,6 @@ def scrape_msm_lenders() -> dict[str, LenderScrapeResult]:
                 source_url=BASE_URL,
                 status="not_found",
                 rows=[],
-                note=f"{lender} not found among MSM's Fixed 2/3/5yr 90% LTV First Time Buyer results on this run.",
+                note=f"{lender} not found among MSM's Fixed 2/3yr 90% LTV First Time Buyer results on this run.",
             )
     return results

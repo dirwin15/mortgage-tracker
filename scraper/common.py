@@ -27,9 +27,15 @@ class RateRow:
     product_type: str             # "fixed" | "tracker" | "variable"
     fix_years: int | None         # None for tracker/variable
     rate_pct: float
-    product_fee: float | None = None            # arrangement/product fee, GBP
-    total_amount_payable: float | None = None    # full term: loan + interest + fees, GBP
-    total_interest: float | None = None          # full term interest only, GBP
+    product_fee: float | None = None  # arrangement/product fee, GBP - flat, doesn't
+                                       # scale with loan size, so safe to store as scraped.
+                                       # Total payable/interest are NOT stored here - they
+                                       # depend on the loan amount and repayment term, which
+                                       # are user inputs the frontend already has; computing
+                                       # them client-side (see RateTracker.jsx) keeps them
+                                       # correct for whatever the user actually selects,
+                                       # instead of frozen to whatever the scraper's fixed
+                                       # scenario (see msm_lenders.py) happened to use.
 
     def to_dict(self):
         return asdict(self)

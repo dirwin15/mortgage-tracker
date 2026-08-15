@@ -188,18 +188,26 @@ export default function RateTracker() {
       const prevMatch = prevDay?.rates?.find(filterRow);
       if (!lastMatch) return null;
       const delta = prevMatch ? Math.round((lastMatch.rate_pct - prevMatch.rate_pct) * 100) / 100 : 0;
+      // Total payable/interest depend on loan amount and repayment term - both are
+      // live user inputs, not scrape-time constants, so compute them here rather
+      // than trust a precomputed figure that'd be frozen to whatever the scraper's
+      // fixed scenario used. Rate and fee are genuine product facts and come
+      // straight from the scrape; these two are just arithmetic on top of them.
+      const productFee = lastMatch.product_fee || 0;
+      const monthlyPmt = monthlyPayment(loanAmount, lastMatch.rate_pct, loanTerm);
+      const totalRepaid = monthlyPmt * loanTerm * 12;
       return {
         lender,
         rate: lastMatch.rate_pct,
         delta,
         productFee: lastMatch.product_fee,
-        totalAmountPayable: lastMatch.total_amount_payable,
-        totalInterest: lastMatch.total_interest,
+        totalAmountPayable: totalRepaid + productFee,
+        totalInterest: totalRepaid - loanAmount,
       };
     }).filter(Boolean);
     return rows.sort((a, b) => a.rate - b.rate);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [band, productType, fixYears, lenders]);
+  }, [band, productType, fixYears, lenders, loanAmount, loanTerm]);
 
   const best = latest[0];
   const payment = best ? monthlyPayment(loanAmount, best.rate, loanTerm) : null;

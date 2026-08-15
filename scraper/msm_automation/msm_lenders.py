@@ -97,8 +97,6 @@ def _products_to_rows(products: list[dict]) -> dict[str, list[RateRow]]:
             fix_years=fix_years,
             rate_pct=float(rate),
             product_fee=costs.get("productFees"),
-            total_amount_payable=costs.get("totalCost"),
-            total_interest=costs.get("interest"),
         ))
     return rows_by_lender
 

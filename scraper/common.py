@@ -32,6 +32,7 @@ PRODUCT_TYPES = ["fixed", "tracker", "variable"]
 
 @dataclass
 class RateRow:
+    lender: str                   # which bank this rate actually belongs to
     ltv_band: int | None          # nearest LTV_BANDS value, or None if unrecognised
     product_type: str             # "fixed" | "tracker" | "variable"
     fix_years: int | None         # None for tracker/variable
@@ -95,7 +96,7 @@ def _nearest_band(ltv_raw: int) -> int | None:
     return min(LTV_BANDS, key=lambda b: abs(b - ltv_raw))
 
 
-def parse_row(text: str) -> RateRow | None:
+def parse_row(text: str, lender: str) -> RateRow | None:
     """Try to pull (ltv, product_type, fix_years, rate) out of one row of text."""
     ltv_match = _LTV_RE.search(text)
     if not ltv_match:
@@ -123,16 +124,16 @@ def parse_row(text: str) -> RateRow | None:
     if not rate_candidates:
         return None
 
-    return RateRow(ltv_band=ltv_band, product_type=product_type, fix_years=fix_years,
-                    rate_pct=rate_candidates[0])
+    return RateRow(lender=lender, ltv_band=ltv_band, product_type=product_type,
+                    fix_years=fix_years, rate_pct=rate_candidates[0])
 
 
-def extract_rate_matrix(html: str) -> list[RateRow]:
+def extract_rate_matrix(html: str, lender: str) -> list[RateRow]:
     """Scan every row-like block on the page and collect every parseable rate row.
     Deduplicates identical (ltv, product, fix_years) keeping the first rate seen."""
     seen = {}
     for block in _row_blocks(html):
-        row = parse_row(block)
+        row = parse_row(block, lender)
         if row is None:
             continue
         key = (row.ltv_band, row.product_type, row.fix_years)

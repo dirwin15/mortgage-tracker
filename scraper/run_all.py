@@ -32,7 +32,7 @@ import datetime as dt
 from pathlib import Path
 
 from . import boe
-from .lenders import SCRAPERS
+from .lenders import scrape_all_lenders
 
 DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "rates.json"
 BOE_HISTORY_START = dt.date(2022, 1, 1)
@@ -62,13 +62,13 @@ def update_lenders(data: dict) -> None:
     today = dt.date.today().isoformat()
     data.setdefault("lenders", {})
 
-    for lender_name, scrape_fn in SCRAPERS.items():
-        try:
-            result = scrape_fn()
-        except Exception as exc:  # noqa: BLE001 - never let one bad lender kill the run
-            print(f"[{lender_name}] unhandled exception: {exc}")
-            continue
+    try:
+        results = scrape_all_lenders()
+    except Exception as exc:  # noqa: BLE001 - one bad aggregator run shouldn't kill the file
+        print(f"[lenders] aggregator scrape failed entirely: {exc}")
+        return
 
+    for lender_name, result in results.items():
         history = data["lenders"].setdefault(lender_name, [])
         history = [row for row in history if row.get("date") != today]  # replace re-runs
         history.append({

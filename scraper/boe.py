@@ -14,7 +14,7 @@ from dataclasses import dataclass
 
 import requests
 
-IADB_URL = "http://www.bankofengland.co.uk/boeapps/iadb/fromshowcolumns.asp"
+IADB_URL = "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp"
 
 # Series codes:
 #   IUDBEDR = Bank Rate (daily)
@@ -44,9 +44,20 @@ def _fetch_series_csv(series_code: str, date_from: dt.date, date_to: dt.date) ->
         "VPD": "Y",
         "VFD": "N",
     }
-    resp = requests.get(IADB_URL, params=params, timeout=30)
+    resp = requests.get(
+        IADB_URL, params=params, timeout=30,
+        headers={"User-Agent": "Mozilla/5.0 (compatible; mortgage-rate-tracker/1.0)"},
+    )
     resp.raise_for_status()
-    return resp.text
+    text = resp.text
+    # The old endpoint returns an HTML error page with a 200 status when the URL/params
+    # are wrong - catch that here instead of silently parsing to zero rows.
+    if "<html" in text.lower()[:200]:
+        raise RuntimeError(
+            f"BoE endpoint returned HTML instead of CSV for series {series_code} - "
+            f"the IADB_URL or query params are likely wrong. First 200 chars: {text[:200]!r}"
+        )
+    return text
 
 
 def fetch_series(series_key: str, date_from: dt.date, date_to: dt.date | None = None) -> list[BoeObservation]:

@@ -7,15 +7,24 @@ import {
 const LTV_BANDS = [60, 75, 80, 85, 90, 95];
 const FIX_LENGTHS = [2, 3, 5];
 const LOAN_TERMS = [25, 30];
-const LENDER_COLORS = {
-  Nationwide: "#5EEAD4",
-  Barclays: "#60A5FA",
-  Santander: "#F472B6",
-  Halifax: "#FBBF24",
-  HSBC: "#A78BFA",
-  NatWest: "#FB923C",
-  Lloyds: "#4ADE80",
-};
+const LENDER_PALETTE = [
+  "#5EEAD4",
+  "#60A5FA",
+  "#F472B6",
+  "#FBBF24",
+  "#A78BFA",
+  "#FB923C",
+  "#4ADE80",
+  "#F59E0B",
+  "#34D399",
+  "#FCA5A5",
+  "#93C5FD",
+  "#C4B5FD",
+];
+
+function lenderColor(lender, index) {
+  return LENDER_PALETTE[index % LENDER_PALETTE.length];
+}
 
 // ---- Sample data generator: shape-matches data/rates.json's lender matrix.
 // Swap this for a real fetch of data/rates.json once the scraper is live. ----
@@ -122,6 +131,15 @@ export default function RateTracker() {
   const [fixYears, setFixYears] = useState(2);
   const [loanTerm, setLoanTerm] = useState(30);
   const [hidden, setHidden] = useState({});
+
+  const lenderNames = useMemo(() => Object.keys(lenders || {}), [lenders]);
+  const lenderNameToColor = useMemo(() => {
+    const map = {};
+    lenderNames.forEach((name, index) => {
+      map[name] = lenderColor(name, index);
+    });
+    return map;
+  }, [lenderNames]);
 
   const band = nearestBand(ltvInput);
   const deposit = Math.round(houseValue * (1 - ltvInput / 100));
@@ -312,7 +330,7 @@ export default function RateTracker() {
             <div style={labelStyle}>BEST RATE TODAY</div>
             {best ? (
               <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-                <span style={{ fontSize: 30, fontWeight: 700, color: LENDER_COLORS[best.lender] }}>
+                <span style={{ fontSize: 30, fontWeight: 700, color: lenderNameToColor[best.lender] || "#F5F7FA" }}>
                   {best.rate.toFixed(2)}%
                 </span>
                 <span style={{ fontSize: 14, color: "#C9CEDA" }}>{best.lender}</span>
@@ -355,12 +373,12 @@ export default function RateTracker() {
               />
               <Legend onClick={(e) => toggle(e.dataKey)} wrapperStyle={{ fontSize: 12, cursor: "pointer", paddingTop: 12 }} />
               <Line type="monotone" dataKey="BoE Base Rate" stroke="#4B5563" strokeDasharray="5 4" strokeWidth={1.5} dot={false} hide={!!hidden["BoE Base Rate"]} />
-              {Object.keys(LENDER_COLORS).map((lender) => (
+              {lenderNames.map((lender) => (
                 <Line
                   key={lender}
                   type="monotone"
                   dataKey={lender}
-                  stroke={LENDER_COLORS[lender]}
+                  stroke={lenderNameToColor[lender] || "#F5F7FA"}
                   strokeWidth={best && lender === best.lender ? 2.5 : 1.5}
                   dot={false}
                   hide={!!hidden[lender]}
@@ -390,7 +408,7 @@ export default function RateTracker() {
               background: i === 0 ? "#131826" : "transparent",
             }}>
               <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: LENDER_COLORS[lender], display: "inline-block" }} />
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: lenderNameToColor[lender] || "#F5F7FA", display: "inline-block" }} />
                 {lender}
               </span>
               <span style={{ textAlign: "right", color: "#F5F7FA", fontWeight: 600 }}>{rate.toFixed(2)}%</span>

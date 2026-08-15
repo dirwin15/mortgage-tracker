@@ -47,6 +47,118 @@ def _playwright_scrape(
         return error_result(lender, url, f"Playwright scrape failed: {exc}")
 
 
+def _nearest_ltv_band(value: int) -> int:
+    from .common import LTV_BANDS
+    return min(LTV_BANDS, key=lambda band: abs(band - value))
+
+
+def extract_moneysupermarket_rows(raw_text: str) -> list[RateRow]:
+    """Parse the visible deal cards from MoneySuperMarket's rate page.
+
+    The site exposes a repeated pattern like:
+      Halifax 2 year fixed ... Initial rate 4.46%
+    This converts those sections into the same RateRow matrix used by the rest of the app.
+    """
+    text = re.sub(r"\s+", " ", raw_text or "")
+    rows: list[RateRow] = []
+    seen: set[tuple[int | None, str, int | None]] = set()
+
+    # The market page usually includes the main fixed-term blocks with an obvious rate figure
+    # directly after a 2/3/5-year fixed label. We keep the parser intentionally broad.
+    for match in re.finditer(
+        r"(?P<fix>2|3|5|10)\s*(?:-?\s*year|yr|years)\s*(?:fixed|fix).*?(?P<rate>\d{1,2}(?:\.\d{1,2})?)\s*%",
+        text,
+        flags=re.I,
+    ):
+        fix_years = int(match.group("fix"))
+        rate = float(match.group("rate"))
+        if not 1.0 <= rate <= 15.0:
+            continue
+
+        ltv_hint = 90
+        ltv_match = re.search(r"(?P<ltv>60|70|75|80|85|90|95)\s*%\s*(?:LTV|loan to value)", text[max(0, match.start() - 250):match.end() + 250], re.I)
+        if ltv_match:
+            ltv_hint = int(ltv_match.group("ltv"))
+
+        key = (ltv_hint, "fixed", fix_years)
+        if key in seen:
+            continue
+        seen.add(key)
+        rows.append(RateRow(
+            ltv_band=_nearest_ltv_band(ltv_hint),
+            product_type="fixed",
+            fix_years=fix_years,
+            rate_pct=rate,
+        ))
+
+    return rows
+
+
+def scrape_moneysupermarket() -> LenderScrapeResult:
+    url = "https://www.moneysupermarket.com/mortgages/"
+    if sync_playwright is None:
+        return error_result("MoneySuperMarket", url, "Playwright is not installed.")
+
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page(
+                viewport={"width": 1600, "height": 1200},
+                user_agent=USER_AGENT,
+            )
+            page.goto(url, wait_until="domcontentloaded", timeout=120_000)
+            page.wait_for_timeout(4_000)
+
+            for label in [
+                "Accept all",
+                "Allow all",
+                "Accept all cookies",
+                "Allow all cookies",
+                "Accept cookies",
+            ]:
+                try:
+                    button = page.get_by_role("button", name=re.compile(label, re.I))
+                    if button.count() > 0:
+                        button.first.click(timeout=20_000)
+                        break
+                except Exception:
+                    pass
+
+                try:
+                    link = page.get_by_text(re.compile(label, re.I))
+                    if link.count() > 0:
+                        link.first.click(timeout=20_000)
+                        break
+                except Exception:
+                    pass
+
+            page.wait_for_timeout(3_000)
+            body_text = page.locator("body").inner_text()
+            rows = extract_moneysupermarket_rows(body_text)
+            browser.close()
+
+            if rows:
+                return LenderScrapeResult(
+                    lender="MoneySuperMarket",
+                    fetched_at=dt.date.today().isoformat(),
+                    source_url=url,
+                    status="ok",
+                    rows=rows,
+                    note="Aggregated mortgage rate cards parsed from MoneySuperMarket's market page.",
+                )
+
+            return LenderScrapeResult(
+                lender="MoneySuperMarket",
+                fetched_at=dt.date.today().isoformat(),
+                source_url=url,
+                status="not_found",
+                rows=[],
+                note="MoneySuperMarket page loaded, but no rate rows were parsed from the visible deal cards.",
+            )
+    except Exception as exc:  # noqa: BLE001
+        return error_result("MoneySuperMarket", url, f"MoneySuperMarket Playwright scrape failed: {exc}")
+
+
 def _parse_nationwide_text(raw_text: str) -> list[RateRow]:
     text = re.sub(r"\s+", " ", raw_text or "")
     rows: list[RateRow] = []
@@ -215,6 +327,7 @@ def scrape_lloyds() -> LenderScrapeResult:
 
 
 SCRAPERS = {
+    "MoneySuperMarket": scrape_moneysupermarket,
     "Nationwide": scrape_nationwide,
     "Barclays": scrape_barclays,
     "Santander": scrape_santander,

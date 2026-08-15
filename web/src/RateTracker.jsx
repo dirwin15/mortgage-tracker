@@ -5,7 +5,7 @@ import {
 
 // ---- Config ----
 const LTV_BANDS = [60, 75, 80, 85, 90, 95];
-const FIX_LENGTHS = [2, 3, 5];
+const FIX_LENGTHS = [2, 3]; // scraper only captures 2/3yr fixed (see scraper/msm_automation)
 const LOAN_TERMS = [25, 30];
 const LENDER_PALETTE = [
   "#5EEAD4",

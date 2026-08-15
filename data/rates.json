@@ -5113,6 +5113,55 @@
         "status": "not_found",
         "note": "Nationwide not found among parsed MoneySuperMarket deal cards on this run.",
         "rates": []
+      },
+      {
+        "date": "2026-08-16",
+        "status": "ok",
+        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3/5yr).",
+        "rates": [
+          {
+            "lender": "Nationwide",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 4.83
+          },
+          {
+            "lender": "Nationwide",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 4.84
+          },
+          {
+            "lender": "Nationwide",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 4.99
+          },
+          {
+            "lender": "Nationwide",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 5.17
+          },
+          {
+            "lender": "Nationwide",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 3,
+            "rate_pct": 5.18
+          },
+          {
+            "lender": "Nationwide",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 3,
+            "rate_pct": 5.39
+          }
+        ]
       }
     ],
     "Barclays": [
@@ -5129,6 +5178,83 @@
             "rate_pct": 4.57
           }
         ]
+      },
+      {
+        "date": "2026-08-16",
+        "status": "ok",
+        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3/5yr).",
+        "rates": [
+          {
+            "lender": "Barclays",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 4.75
+          },
+          {
+            "lender": "Barclays",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 4.85
+          },
+          {
+            "lender": "Barclays",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 4.96
+          },
+          {
+            "lender": "Barclays",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 5.01
+          },
+          {
+            "lender": "Barclays",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 3,
+            "rate_pct": 5.04
+          },
+          {
+            "lender": "Barclays",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 5.05
+          },
+          {
+            "lender": "Barclays",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 5.11
+          },
+          {
+            "lender": "Barclays",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 3,
+            "rate_pct": 5.14
+          },
+          {
+            "lender": "Barclays",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 5.3
+          },
+          {
+            "lender": "Barclays",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 5.35
+          }
+        ]
       }
     ],
     "Santander": [
@@ -5137,6 +5263,76 @@
         "status": "not_found",
         "note": "Santander not found among parsed MoneySuperMarket deal cards on this run.",
         "rates": []
+      },
+      {
+        "date": "2026-08-16",
+        "status": "ok",
+        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3/5yr).",
+        "rates": [
+          {
+            "lender": "Santander",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 4.89
+          },
+          {
+            "lender": "Santander",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 4.9
+          },
+          {
+            "lender": "Santander",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 5.02
+          },
+          {
+            "lender": "Santander",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 3,
+            "rate_pct": 5.1
+          },
+          {
+            "lender": "Santander",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 5.14
+          },
+          {
+            "lender": "Santander",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 3,
+            "rate_pct": 5.3
+          },
+          {
+            "lender": "Santander",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 5.4
+          },
+          {
+            "lender": "Santander",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 3,
+            "rate_pct": 5.45
+          },
+          {
+            "lender": "Santander",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 5.49
+          }
+        ]
       }
     ],
     "Halifax": [
@@ -5160,6 +5356,83 @@
             "rate_pct": 4.57
           }
         ]
+      },
+      {
+        "date": "2026-08-16",
+        "status": "ok",
+        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3/5yr).",
+        "rates": [
+          {
+            "lender": "Halifax",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 4.99
+          },
+          {
+            "lender": "Halifax",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 5.0
+          },
+          {
+            "lender": "Halifax",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 5.07
+          },
+          {
+            "lender": "Halifax",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 3,
+            "rate_pct": 5.12
+          },
+          {
+            "lender": "Halifax",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 5.16
+          },
+          {
+            "lender": "Halifax",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 5.19
+          },
+          {
+            "lender": "Halifax",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 5.2
+          },
+          {
+            "lender": "Halifax",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 3,
+            "rate_pct": 5.23
+          },
+          {
+            "lender": "Halifax",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 5.27
+          },
+          {
+            "lender": "Halifax",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 5.36
+          }
+        ]
       }
     ],
     "HSBC": [
@@ -5168,6 +5441,55 @@
         "status": "not_found",
         "note": "HSBC not found among parsed MoneySuperMarket deal cards on this run.",
         "rates": []
+      },
+      {
+        "date": "2026-08-16",
+        "status": "ok",
+        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3/5yr).",
+        "rates": [
+          {
+            "lender": "HSBC",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 4.86
+          },
+          {
+            "lender": "HSBC",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 4.86
+          },
+          {
+            "lender": "HSBC",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 4.98
+          },
+          {
+            "lender": "HSBC",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 5.09
+          },
+          {
+            "lender": "HSBC",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 5.33
+          },
+          {
+            "lender": "HSBC",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 5.41
+          }
+        ]
       }
     ],
     "NatWest": [
@@ -5176,6 +5498,55 @@
         "status": "not_found",
         "note": "NatWest not found among parsed MoneySuperMarket deal cards on this run.",
         "rates": []
+      },
+      {
+        "date": "2026-08-16",
+        "status": "ok",
+        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3/5yr).",
+        "rates": [
+          {
+            "lender": "NatWest",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 4.82
+          },
+          {
+            "lender": "NatWest",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 4.86
+          },
+          {
+            "lender": "NatWest",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 4.93
+          },
+          {
+            "lender": "NatWest",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 5.07
+          },
+          {
+            "lender": "NatWest",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 5.3
+          },
+          {
+            "lender": "NatWest",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 5.38
+          }
+        ]
       }
     ],
     "Lloyds": [
@@ -5184,6 +5555,153 @@
         "status": "not_found",
         "note": "Lloyds not found among parsed MoneySuperMarket deal cards on this run.",
         "rates": []
+      },
+      {
+        "date": "2026-08-16",
+        "status": "ok",
+        "note": "Parsed from MoneySuperMarket's rates-table API (First Time Buyer, 500k/90% LTV, Fixed 2/3/5yr).",
+        "rates": [
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 4.94
+          },
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 4.95
+          },
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 4.99
+          },
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 5.0
+          },
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 5.02
+          },
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 3,
+            "rate_pct": 5.07
+          },
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 5.07
+          },
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 5.11
+          },
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 3,
+            "rate_pct": 5.12
+          },
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 5.14
+          },
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 5.15
+          },
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 5.16
+          },
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 3,
+            "rate_pct": 5.18
+          },
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 5.19
+          },
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 5.2
+          },
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 5.22
+          },
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 3,
+            "rate_pct": 5.23
+          },
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 5,
+            "rate_pct": 5.27
+          },
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 5.31
+          },
+          {
+            "lender": "Lloyds",
+            "ltv_band": 90,
+            "product_type": "fixed",
+            "fix_years": 2,
+            "rate_pct": 5.36
+          }
+        ]
       }
     ]
   }

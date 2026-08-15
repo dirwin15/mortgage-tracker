@@ -6,7 +6,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  scrape:
+  boe:
+    # Plain requests against the BoE's public CSV endpoint - no bot wall, no
+    # reason this needs anything other than a free GitHub-hosted runner.
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -24,19 +26,63 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          python -m playwright install --with-deps chromium
 
-      - name: Run scraper
-        run: python -m scraper.run_all
+      - name: Run BoE scraper
+        run: python -m scraper.run_all --boe-only
 
       - name: Commit updated rates
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if git diff --quiet -- data/rates.json; then
-            echo "No rate changes detected."
+            echo "No BoE changes detected."
             exit 0
           fi
           git add data/rates.json
-          git commit -m "chore: update mortgage rates"
+          git commit -m "chore: update BoE rates"
+          git push
+
+  msm-lenders:
+    # MoneySuperMarket's rates-table API blocks GitHub-hosted runners by IP
+    # reputation regardless of browser fingerprint (confirmed: Azure IPs get an
+    # explicit "unusual requests from the network you are using" response from
+    # Cloudflare) - this must run on the self-hosted runner. See
+    # scraper/msm_automation/README.md for the setup and why.
+    needs: boe
+    runs-on: [self-hosted, msm-scraper]
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          # needs: boe guarantees that job's push already landed - fetch main's
+          # current tip explicitly rather than the workflow-trigger SHA, which
+          # would predate it.
+          ref: main
+
+      # actions/setup-python's installer invocation fails on this self-hosted
+      # runner, and plain "python" on PATH resolves to a Windows Store stub -
+      # use "py" (the launcher), which resolves to the real interpreter here.
+      - name: Install patchright
+        run: |
+          py -m pip install --upgrade pip
+          py -m pip install -r requirements.txt
+          py -m patchright install chromium
+
+      - name: Run MSM lenders scraper
+        run: py -m scraper.run_all --lenders-only
+
+      - name: Commit updated rates
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git diff --quiet -- data/rates.json
+          if ($LASTEXITCODE -eq 0) {
+            Write-Output "No lender changes detected."
+            exit 0
+          }
+          git add data/rates.json
+          git commit -m "chore: update lender rates"
           git push

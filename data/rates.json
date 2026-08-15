@@ -5,12 +5,61 @@
     "fixed_5yr_75ltv": []
   },
   "lenders": {
-    "Nationwide": [],
-    "Barclays": [],
-    "Santander": [],
-    "Halifax": [],
-    "HSBC": [],
-    "NatWest": [],
-    "Lloyds": []
+    "Nationwide": [
+      {
+        "date": "2026-08-15",
+        "status": "error",
+        "note": "fetch failed: 404 Client Error: The requested content does not exist. for url: https://www.nationwide.co.uk/mortgages/new-mortgage-rates",
+        "rates": []
+      }
+    ],
+    "Barclays": [
+      {
+        "date": "2026-08-15",
+        "status": "not_found",
+        "note": "No rate rows parsed - page structure likely changed, inspect manually.",
+        "rates": []
+      }
+    ],
+    "Santander": [
+      {
+        "date": "2026-08-15",
+        "status": "error",
+        "note": "fetch failed: 404 Client Error: Not Found for url: https://www.santander.co.uk/personal/mortgages/mortgage-rates",
+        "rates": []
+      }
+    ],
+    "Halifax": [
+      {
+        "date": "2026-08-15",
+        "status": "error",
+        "note": "Not implemented: this lender returns a personalised rate from an interactive calculator (JS-rendered), so a plain requests.get() won't see a rate table. Needs a Playwright script that loads the page, fills in property value / deposit / term for each LTV band we want, and reads back the resulting rate. Build once the static-table lenders are confirmed.",
+        "rates": []
+      }
+    ],
+    "HSBC": [
+      {
+        "date": "2026-08-15",
+        "status": "error",
+        "note": "Not implemented: this lender returns a personalised rate from an interactive calculator (JS-rendered), so a plain requests.get() won't see a rate table. Needs a Playwright script that loads the page, fills in property value / deposit / term for each LTV band we want, and reads back the resulting rate. Build once the static-table lenders are confirmed.",
+        "rates": []
+      }
+    ],
+    "NatWest": [
+      {
+        "date": "2026-08-15",
+        "status": "error",
+        "note": "Not implemented: this lender returns a personalised rate from an interactive calculator (JS-rendered), so a plain requests.get() won't see a rate table. Needs a Playwright script that loads the page, fills in property value / deposit / term for each LTV band we want, and reads back the resulting rate. Build once the static-table lenders are confirmed.",
+        "rates": []
+      }
+    ],
+    "Lloyds": [
+      {
+        "date": "2026-08-15",
+        "status": "error",
+        "note": "Not implemented: this lender returns a personalised rate from an interactive calculator (JS-rendered), so a plain requests.get() won't see a rate table. Needs a Playwright script that loads the page, fills in property value / deposit / term for each LTV band we want, and reads back the resulting rate. Build once the static-table lenders are confirmed.",
+        "rates": []
+      }
+    ]
   }
 }

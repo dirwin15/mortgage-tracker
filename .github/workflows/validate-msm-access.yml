@@ -5,7 +5,11 @@ on:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    # Self-hosted, run interactively at logon (see msm_automation/README.md) so
+    # Chromium has a real desktop to render into - this job needs a real
+    # (non-datacenter) IP and a real display, neither of which a GitHub-hosted
+    # runner can provide for this specific site.
+    runs-on: [self-hosted, msm-scraper]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -15,13 +19,11 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install Xvfb and patchright
+      - name: Install patchright
         run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
           python -m pip install --upgrade pip
           pip install patchright
-          python -m patchright install --with-deps chromium
+          python -m patchright install chromium
 
-      - name: Run MSM access validation under Xvfb
-        run: xvfb-run -a python scraper/msm_automation/validate_msm_access.py
+      - name: Run MSM access validation
+        run: python scraper/msm_automation/validate_msm_access.py
